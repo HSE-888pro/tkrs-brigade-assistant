@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0A1D30">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
-<!-- CSP: offline-first архитектура. 'unsafe-inline' необходим для single-file решения без сборщика. -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; img-src 'self' data:; font-src https://fonts.gstatic.com; connect-src 'none'; base-uri 'self'; form-action 'self';">
 <title>Цифровой ассистент бригады · ТКРС</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -34,7 +33,6 @@ body{font-family:var(--body);background:var(--ink);background-image:radial-gradi
 .side .btn-sound:hover{border-color:var(--tg);color:var(--tg)}
 .side .btn-sound.active{border-color:var(--tg);color:var(--tg);background:rgba(51,144,236,.08)}
 
-/* ИСПРАВЛЕНИЕ: Использование dvh для корректного отображения на мобильных браузерах */
 .phone{width:400px;max-width:100%;margin:0 auto;background:#fff;border-radius:34px;overflow:hidden;box-shadow:0 40px 90px rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.2);display:flex;flex-direction:column;height:85vh;height:85dvh;max-height:800px}
 @media(max-width:980px){.phone{height:70vh;height:70dvh;border-radius:24px}}
 
@@ -137,7 +135,7 @@ body{font-family:var(--body);background:var(--ink);background-image:radial-gradi
 <body>
 <!-- 
   ПРОЕКТ: Цифровой ассистент бригады (ТКРС)
-  ВЕРСИЯ: 1.1.0 (Обновлено: исправлен dvh, добавлен iOS speech workaround)
+  ВЕРСИЯ: 1.0.0
   ДАТА:   2026-10-06
   АРХИТЕКТУРА: Single-file HTML, Vanilla JS, Offline-First
   БЕЗОПАСНОСТЬ: CSP, XSS Prevention, Kiosk Mode Protection
@@ -183,10 +181,11 @@ body{font-family:var(--body);background:var(--ink);background-image:radial-gradi
 <script>
 /**
  * Цифровой ассистент бригады (ТКРС)
- * @version 1.1.0
+ * @version 1.0.0
  * @description Офлайн-инструмент для мастеров и ИТР.
  * Архитектура: Vanilla JS, Single-File, Offline-First.
- * Защита: Kiosk Mode, XSS Prevention, Safe Storage Fallback, iOS Speech Workaround.
+ * Защита: Kiosk Mode, XSS Prevention, Safe Storage Fallback.
+ * Терминология: ТКРС (спуско-подъёмные операции, герметизация устья, нормы времени).
  */
 (function() {
   'use strict';
@@ -266,7 +265,7 @@ body{font-family:var(--body);background:var(--ink);background-image:radial-gradi
     ])}),
     planerka: Object.freeze({ t: '📋 Планёрка и смена', intro: 'Регламент предвахтовой планёрки: Т−30, метрики, реестр рисков.', opts: Object.freeze([
       { id: 'safety_min', t: '🦺 Минутка безопасности', card: ['🦺 МИНУТКА БЕЗОПАСНОСТИ (Первый пункт планёрки)', '', '1. Озвучить актуальное СТОП-правило (например, СЗВТ от 1,8 м).', '2. Разобрать 1 случай из видеоаналитики за прошлые сутки.', '3. Спросить вахту: «Кто видит риски в предстоящих работах?»', '4. Зафиксировать обратную связь в реестре.', '', 'Правило: Начинаем с безопасности, а не с задач.'] },
-      { id: 'metrics', t: '📊 Ключевые метрики вахты', card: ['📊 МЕТРИКИ ДЛЯ ОБСУЖДЕНИЯ', '', '• Механическая скорость (план / факт, КПЭ)', '• НПВ (непроизводительное время): причины и длительность', '• Процент выполнения почасового плана', '• Количество нарушений по видеоаналитике', '• Статус критичных барьеров (устье, СЗВТ, строповка)', '', 'Цель: выявить отклонение в первый час, а не в конце вахты.'] },
+      { id: 'metrics', t: '📊 Ключевые метрики вахты', card: ['📊 МЕТРИКИ ДЛЯ ОБСУЖДЕНИЯ', '', '• Выполнение плана операций (план / факт)', '• НПВ (непроизводительное время): причины и длительность', '• Процент выполнения почасового плана', '• Количество нарушений по видеоаналитике', '• Статус критичных барьеров (устье, СЗВТ, строповка)', '', 'Цель: выявить отклонение в первый час, а не в конце вахты.'] },
       { id: 'tasks', t: '🎯 7 задач и Т−30', card: ['🎯 ПЛАНЁРКА · ЗА 30 МИНУТ ДО ВАХТЫ', '', '1. Анализ выполнения предыдущего плана', '2. Совместный детальный план', '3. Идентификация значимых рисков', '4. Применимые барьеры', '5. Ответственные за контроль', '6. Контроль технологических параметров', '7. Лист-задание на вахту'] },
       { id: 'karta', t: '🧮 Карта качества 0–25', check: ['1. Анализ безопасности прошлой смены (0-5 баллов)', '2. Выполнение плана предыдущей вахты (0-5 баллов)', '3. Планирование на сутки (лист-задание, риски) (0-5 баллов)', '4. Безопасность (риски + барьеры с ответственными) (0-5 баллов)', '5. Использование доски визуализации (0-5 баллов)', 'ИТОГО: ___ из 25 баллов (≥23 — отлично)'] }
     ])}),
@@ -361,7 +360,7 @@ body{font-family:var(--body);background:var(--ink);background-image:radial-gradi
         utt.pitch = opt.pitch || 1.0;
         utt.volume = opt.volume || 0.8;
 
-        // ИСПРАВЛЕНИЕ: Workaround для iOS Safari (предотвращение таймаута через 15 сек)
+        // Стабилизация SpeechSynthesis для iOS Safari (предотвращение таймаута)
         if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
           iosHackInterval = setInterval(function() {
             if (window.speechSynthesis.speaking) {
@@ -608,21 +607,21 @@ body{font-family:var(--body);background:var(--ink);background-image:radial-gradi
   function speakBrief(type) {
     let t = '';
     if (type === 'dawn') {
-      t = 'Внимание. Утренняя планёрка. Время: семь часов тридцать минут. Начинаем с минутки безопасности. Напоминаю: работы на высоте от одного целой восьми десятых метра — только в СЗВТ. План на вахту: спуск насосно-компрессорных труб на глубину одна тысяча пятьсот метров. Целевая механическая скорость: двадцать КПЭ. Задача: пройти вахту без непроизводительного времени. Ответственные назначены. Лист-задание подписано. Вопросы по рискам есть? Если нет, приступаем. Безопасной вахты.';
+      t = 'Внимание. Утренняя планёрка. Время: семь часов тридцать минут. Начинаем с минутки безопасности. Напоминаю: работы на высоте от одного целой восьми десятых метра — только в СЗВТ. Подводим итоги работы второй, ночной смены. Факт выполнения операций — согласно утверждённому плану. План на текущую, первую смену: спуск насосно-компрессорных труб на глубину одна тысяча пятьсот метров. Целевая скорость СПО — согласно нормам времени и утверждённому плану работ. Касательно рисков: реестр наиболее значимых рисков на смену оформлен. Риски по безопасности выполнения работ доведены до ответственных исполнителей работ и ответственных руководителей работ. Превентивные меры реализованы. Задача: пройти вахту без непроизводительного времени. Лист-задание подписано. Второй смене желаем безопасной и безаварийной работы. Вопросы по рискам есть? Если нет, приступаем. Безопасной вахты.';
     } else {
-      t = 'Внимание. Вечерняя планёрка. Время: девятнадцать часов тридцать минут. Подводим итоги. Факт выполнения: пройдено одна тысяча четыреста метров. Непроизводительное время: один час. Причина: ожидание транспорта. Нарушений безопасности по видеоаналитике: ноль. Передаём смене: незавершён спуск на отметку одна тысяча пятьсот метров. Реестр рисков обновлён. Записи в журнал внесены. Спасибо за работу. Сдача смены.';
+      t = 'Внимание. Вечерняя планёрка. Время: девятнадцать часов тридцать минут. Начинаем с минутки безопасности. Напоминаю: контроль устья — герметизация в каждый перерыв, долив по таблице. Подводим итоги работы первой, дневной смены. Факт выполнения — согласно утверждённому плану работ. Непроизводительное время: один час. Причина: ожидание транспорта. Нарушений безопасности по видеоаналитике: ноль. Передача смены: вторая смена принимает скважину. Незавершён спуск НКТ на глубину одна тысяча пятьсот метров. Касательно рисков: реестр наиболее значимых рисков на смену оформлен. Риски по безопасности выполнения работ доведены до ответственных исполнителей работ и ответственных руководителей работ. Превентивные меры реализованы. Первой смене завтра желаем безопасной и безаварийной работы. Записи в журнал внесены. Спасибо за работу. Сдача смены.';
     }
     State.currentAudioText = t;
     VoiceEngine.speak(t, { lang: 'ru-RU', rate: 0.9, pitch: 1.0, volume: 0.8 });
   }
 
   function speakMetricsFromInputs() {
-    const p = document.getElementById('metPlan').value;
-    const f = document.getElementById('metFact').value;
-    const n = document.getElementById('metNpv').value;
-    const v = document.getElementById('metViol').value;
-    const s = document.getElementById('metScore').value;
-    const t = 'Ключевые метрики вахты. План по механической скорости: ' + p + ' КПЭ. Фактическая скорость: ' + f + ' КПЭ. Непроизводительное время: ' + n + ' часов. Нарушения барьеров: ' + v + '. Оценка планёрки по карте качества: ' + s + ' баллов из двадцати пяти.';
+    const p = document.getElementById('metPlan').value || '0';
+    const f = document.getElementById('metFact').value || '0';
+    const n = document.getElementById('metNpv').value || '0';
+    const v = document.getElementById('metViol').value || '0';
+    const s = document.getElementById('metScore').value || '0';
+    const t = 'Ключевые метрики вахты. План операций: ' + p + '. Факт выполнения: ' + f + '. Непроизводительное время: ' + n + ' часов. Нарушения барьеров: ' + v + '. Оценка планёрки по карте качества: ' + s + ' баллов из двадцати пяти.';
     if (App.status) App.status.innerHTML = '📊 озвучивает метрики <span class="wave-indicator"><span></span><span></span><span></span><span></span><span></span></span>';
     VoiceEngine.speak(t, { lang: 'ru-RU', rate: 0.85, pitch: 1.0, volume: 0.8 }).then(function() {
       if (App.status) App.status.textContent = 'бот · в сети';
@@ -773,7 +772,7 @@ body{font-family:var(--body);background:var(--ink);background-image:radial-gradi
       fc.className = 'asst-card';
       fc.style.maxWidth = '92%';
       fc.style.alignSelf = 'flex-start';
-      fc.innerHTML = '<div class="ac-head"><div class="ac-icon" style="background:var(--tg);color:#fff">📊</div><div><div class="ac-title">МЕТРИКИ ВАХТЫ</div><div class="ac-sub">Заполните → скопируйте → отправьте</div></div></div><div class="ac-body" style="display:flex;flex-direction:column;gap:8px"><label style="font-size:11px;color:#7A8B99;font-family:var(--mono)">ПЛАН (КПЭ)<input id="metPlan" type="number" value="20" style="width:100%;margin-top:3px;padding:6px 8px;border:1px solid #E1E6EA;border-radius:6px;font-family:var(--mono);font-size:13px;color:#17212B;-webkit-user-select:text;-moz-user-select:text;user-select:text"></label><label style="font-size:11px;color:#7A8B99;font-family:var(--mono)">ФАКТ (КПЭ)<input id="metFact" type="number" value="19" style="width:100%;margin-top:3px;padding:6px 8px;border:1px solid #E1E6EA;border-radius:6px;font-family:var(--mono);font-size:13px;color:#17212B;-webkit-user-select:text;-moz-user-select:text;user-select:text"></label><label style="font-size:11px;color:#7A8B99;font-family:var(--mono)">НПВ (ч)<input id="metNpv" type="number" value="0" step="0.5" style="width:100%;margin-top:3px;padding:6px 8px;border:1px solid #E1E6EA;border-radius:6px;font-family:var(--mono);font-size:13px;color:#17212B;-webkit-user-select:text;-moz-user-select:text;user-select:text"></label><label style="font-size:11px;color:#7A8B99;font-family:var(--mono)">НАРУШЕНИЯ<input id="metViol" type="number" value="0" style="width:100%;margin-top:3px;padding:6px 8px;border:1px solid #E1E6EA;border-radius:6px;font-family:var(--mono);font-size:13px;color:#17212B;-webkit-user-select:text;-moz-user-select:text;user-select:text"></label><label style="font-size:11px;color:#7A8B99;font-family:var(--mono)">ОЦЕНКА ПЛАНЁРКИ (из 25)<input id="metScore" type="number" value="24" max="25" style="width:100%;margin-top:3px;padding:6px 8px;border:1px solid #E1E6EA;border-radius:6px;font-family:var(--mono);font-size:13px;color:#17212B;-webkit-user-select:text;-moz-user-select:text;user-select:text"></label></div>';
+      fc.innerHTML = '<div class="ac-head"><div class="ac-icon" style="background:var(--tg);color:#fff">📊</div><div><div class="ac-title">МЕТРИКИ ВАХТЫ</div><div class="ac-sub">Заполните → скопируйте → отправьте</div></div></div><div class="ac-body" style="display:flex;flex-direction:column;gap:8px"><label style="font-size:11px;color:#7A8B99;font-family:var(--mono)">ПЛАН ОПЕРАЦИЙ<input id="metPlan" type="number" value="20" style="width:100%;margin-top:3px;padding:6px 8px;border:1px solid #E1E6EA;border-radius:6px;font-family:var(--mono);font-size:13px;color:#17212B;-webkit-user-select:text;-moz-user-select:text;user-select:text"></label><label style="font-size:11px;color:#7A8B99;font-family:var(--mono)">ФАКТ ВЫПОЛНЕНИЯ<input id="metFact" type="number" value="19" style="width:100%;margin-top:3px;padding:6px 8px;border:1px solid #E1E6EA;border-radius:6px;font-family:var(--mono);font-size:13px;color:#17212B;-webkit-user-select:text;-moz-user-select:text;user-select:text"></label><label style="font-size:11px;color:#7A8B99;font-family:var(--mono)">НПВ (ч)<input id="metNpv" type="number" value="0" step="0.5" style="width:100%;margin-top:3px;padding:6px 8px;border:1px solid #E1E6EA;border-radius:6px;font-family:var(--mono);font-size:13px;color:#17212B;-webkit-user-select:text;-moz-user-select:text;user-select:text"></label><label style="font-size:11px;color:#7A8B99;font-family:var(--mono)">НАРУШЕНИЯ<input id="metViol" type="number" value="0" style="width:100%;margin-top:3px;padding:6px 8px;border:1px solid #E1E6EA;border-radius:6px;font-family:var(--mono);font-size:13px;color:#17212B;-webkit-user-select:text;-moz-user-select:text;user-select:text"></label><label style="font-size:11px;color:#7A8B99;font-family:var(--mono)">ОЦЕНКА ПЛАНЁРКИ (из 25)<input id="metScore" type="number" value="24" max="25" style="width:100%;margin-top:3px;padding:6px 8px;border:1px solid #E1E6EA;border-radius:6px;font-family:var(--mono);font-size:13px;color:#17212B;-webkit-user-select:text;-moz-user-select:text;user-select:text"></label></div>';
       m.after(fc);
       m.innerHTML = '<b>📊 КЛЮЧЕВЫЕ МЕТРИКИ</b>\nЗаполните поля и скопируйте готовый отчёт.<span class="mt">' + getTime() + '</span>';
       recordResponse(t0);
@@ -787,7 +786,7 @@ body{font-family:var(--body);background:var(--ink);background-image:radial-gradi
           const n = document.getElementById('metNpv').value;
           const v = document.getElementById('metViol').value;
           const s = document.getElementById('metScore').value;
-          const txt = 'План по мех. скорости: ' + p + ' КПЭ. Факт: ' + f + ' КПЭ. НПВ: ' + n + ' ч. Нарушения: ' + v + '. Оценка планёрки: ' + s + '/25.';
+          const txt = 'План операций: ' + p + '. Факт выполнения: ' + f + '. НПВ: ' + n + ' ч. Нарушения: ' + v + '. Оценка планёрки: ' + s + '/25.';
           if (navigator.clipboard && window.isSecureContext) {
             navigator.clipboard.writeText(txt).then(function() { showToast('Отчёт скопирован'); }).catch(function() { fallbackCopy(txt); });
           } else {
