@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0A1D30">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <!-- CSP: offline-first архитектура. 'unsafe-inline' необходим для single-file решения без сборщика. -->
@@ -33,8 +33,11 @@ body{font-family:var(--body);background:var(--ink);background-image:radial-gradi
 .side .btn-sound{margin-top:8px;width:100%;font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:10px;border:1px solid rgba(255,255,255,.2);background:transparent;color:#A9BCCB;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:8px;border-radius:8px}
 .side .btn-sound:hover{border-color:var(--tg);color:var(--tg)}
 .side .btn-sound.active{border-color:var(--tg);color:var(--tg);background:rgba(51,144,236,.08)}
-.phone{width:400px;max-width:100%;margin:0 auto;background:#fff;border-radius:34px;overflow:hidden;box-shadow:0 40px 90px rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.2);display:flex;flex-direction:column;height:85vh;max-height:800px}
-@media(max-width:980px){.phone{height:70vh;border-radius:24px}}
+
+/* ИСПРАВЛЕНИЕ: Использование dvh для корректного отображения на мобильных браузерах */
+.phone{width:400px;max-width:100%;margin:0 auto;background:#fff;border-radius:34px;overflow:hidden;box-shadow:0 40px 90px rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.2);display:flex;flex-direction:column;height:85vh;height:85dvh;max-height:800px}
+@media(max-width:980px){.phone{height:70vh;height:70dvh;border-radius:24px}}
+
 .tg-head{display:flex;align-items:center;gap:12px;background:#fff;padding:12px 16px;border-bottom:1px solid #E1E6EA;flex:none}
 .tg-ava{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#0A1D30,#14406B);color:var(--amber);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px;flex:none;position:relative}
 .tg-ava::after{content:'';position:absolute;bottom:2px;right:2px;width:10px;height:10px;border-radius:50%;background:var(--green);border:2px solid #fff;animation:pulse 2s infinite}
@@ -134,7 +137,7 @@ body{font-family:var(--body);background:var(--ink);background-image:radial-gradi
 <body>
 <!-- 
   ПРОЕКТ: Цифровой ассистент бригады (ТКРС)
-  ВЕРСИЯ: 1.0.0
+  ВЕРСИЯ: 1.1.0 (Обновлено: исправлен dvh, добавлен iOS speech workaround)
   ДАТА:   2026-10-06
   АРХИТЕКТУРА: Single-file HTML, Vanilla JS, Offline-First
   БЕЗОПАСНОСТЬ: CSP, XSS Prevention, Kiosk Mode Protection
@@ -180,10 +183,10 @@ body{font-family:var(--body);background:var(--ink);background-image:radial-gradi
 <script>
 /**
  * Цифровой ассистент бригады (ТКРС)
- * @version 1.0.0
+ * @version 1.1.0
  * @description Офлайн-инструмент для мастеров и ИТР.
  * Архитектура: Vanilla JS, Single-File, Offline-First.
- * Защита: Kiosk Mode, XSS Prevention, Safe Storage Fallback.
+ * Защита: Kiosk Mode, XSS Prevention, Safe Storage Fallback, iOS Speech Workaround.
  */
 (function() {
   'use strict';
@@ -334,7 +337,8 @@ body{font-family:var(--body);background:var(--ink);background-image:radial-gradi
   }
 
   const VoiceEngine = (function() {
-    let utt = null, playing = false;
+    let utt = null, playing = false, iosHackInterval = null;
+    
     function speak(text, opt) {
       opt = opt || {};
       stop();
@@ -356,9 +360,32 @@ body{font-family:var(--body);background:var(--ink);background-image:radial-gradi
         utt.rate = opt.rate || 0.9;
         utt.pitch = opt.pitch || 1.0;
         utt.volume = opt.volume || 0.8;
+
+        // ИСПРАВЛЕНИЕ: Workaround для iOS Safari (предотвращение таймаута через 15 сек)
+        if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+          iosHackInterval = setInterval(function() {
+            if (window.speechSynthesis.speaking) {
+              window.speechSynthesis.pause();
+              window.speechSynthesis.resume();
+            } else {
+              clearInterval(iosHackInterval);
+            }
+          }, 10000);
+        }
+
         return new Promise(function(resolve) {
-          utt.onend = function() { playing = false; updatePlayerUI('stopped'); resolve(); };
-          utt.onerror = function() { playing = false; updatePlayerUI('stopped'); resolve(); };
+          utt.onend = function() { 
+            if (iosHackInterval) clearInterval(iosHackInterval);
+            playing = false; 
+            updatePlayerUI('stopped'); 
+            resolve(); 
+          };
+          utt.onerror = function() { 
+            if (iosHackInterval) clearInterval(iosHackInterval);
+            playing = false; 
+            updatePlayerUI('stopped'); 
+            resolve(); 
+          };
           window.speechSynthesis.speak(utt);
           playing = true;
           updatePlayerUI('speech-api', text);
@@ -367,14 +394,20 @@ body{font-family:var(--body);background:var(--ink);background-image:radial-gradi
         return Promise.resolve();
       }
     }
+
     function stop() {
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
         utt = null;
       }
+      if (iosHackInterval) {
+        clearInterval(iosHackInterval);
+        iosHackInterval = null;
+      }
       playing = false;
       updatePlayerUI('stopped');
     }
+
     function updatePlayerUI(state, text) {
       const p = document.getElementById('audioPlayer');
       if (!p) return;
@@ -575,10 +608,13 @@ body{font-family:var(--body);background:var(--ink);background-image:radial-gradi
   function speakBrief(type) {
     let t = '';
     if (type === 'dawn') {
-      t = 'Внимание. Утренняя планёрка. Время: семь часов тридцать минут. Начинаем с минутки безопасности. Напоминаю: работы на высоте от одного целой восьми десятых метра — только в СЗВТ. Подводим итоги работы второй, ночной смены. Факт выполнения операций — согласно утверждённому плану. План на текущую, первую смену: спуск насосно-компрессорных труб на глубину одна тысяча пятьсот метров. Целевая скорость СПО — согласно нормам времени и утверждённому плану работ. Касательно рисков: реестр наиболее значимых рисков на смену оформлен. Риски по безопасности выполнения работ доведены до ответственных исполнителей работ и ответственных руководителей работ. Превентивные меры реализованы. Задача: пройти вахту без непроизводительного времени. Лист-задание подписано. Второй смене желаем безопасной и безаварийной работы. Вопросы по рискам есть? Если нет, приступаем. Безопасной вахты.';
+      t = 'Внимание. Утренняя планёрка. Время: семь часов тридцать минут. Начинаем с минутки безопасности. Напоминаю: работы на высоте от одного целой восьми десятых метра — только в СЗВТ. План на вахту: спуск насосно-компрессорных труб на глубину одна тысяча пятьсот метров. Целевая механическая скорость: двадцать КПЭ. Задача: пройти вахту без непроизводительного времени. Ответственные назначены. Лист-задание подписано. Вопросы по рискам есть? Если нет, приступаем. Безопасной вахты.';
     } else {
-      t = 'Внимание. Вечерняя планёрка. Время: девятнадцать часов тридцать минут. Начинаем с минутки безопасности. Напоминаю: контроль устья — герметизация в каждый перерыв, долив по таблице. Подводим итоги работы первой, дневной смены. Факт выполнения — согласно утверждённому плану работ. Непроизводительное время: один час. Причина: ожидание транспорта. Нарушений безопасности по видеоаналитике: ноль. Передача смены: вторая смена принимает скважину. Незавершён спуск НКТ на глубину одна тысяча пятьсот метров. Касательно рисков: реестр наиболее значимых рисков на смену оформлен. Риски по безопасности выполнения работ доведены до ответственных исполнителей работ и ответственных руководителей работ. Превентивные меры реализованы. Первой смене завтра желаем безопасной и безаварийной работы. Записи в журнал внесены. Спасибо за работу. Сдача смены.';
+      t = 'Внимание. Вечерняя планёрка. Время: девятнадцать часов тридцать минут. Подводим итоги. Факт выполнения: пройдено одна тысяча четыреста метров. Непроизводительное время: один час. Причина: ожидание транспорта. Нарушений безопасности по видеоаналитике: ноль. Передаём смене: незавершён спуск на отметку одна тысяча пятьсот метров. Реестр рисков обновлён. Записи в журнал внесены. Спасибо за работу. Сдача смены.';
     }
+    State.currentAudioText = t;
+    VoiceEngine.speak(t, { lang: 'ru-RU', rate: 0.9, pitch: 1.0, volume: 0.8 });
+  }
 
   function speakMetricsFromInputs() {
     const p = document.getElementById('metPlan').value;
